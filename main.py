@@ -19,11 +19,22 @@ class DiscordChannelResolver:
         self.debug_log = debug_log
 
     def is_discord_event(self, event: AstrMessageEvent) -> bool:
+        try:
+            if event.get_platform_name() == "discord":
+                return True
+        except Exception:
+            pass
+
         origin = str(getattr(event, "unified_msg_origin", "") or "").lower()
-        return origin.startswith("discord:") or ":discord:" in origin
+        return (
+            origin.startswith("discord:")
+            or origin.startswith("discord-")
+            or ":discord:" in origin
+        )
 
     def extract_channel_id(self, event: AstrMessageEvent) -> int | None:
         direct_candidates = [
+            getattr(event, "session_id", None),
             getattr(event, "channel_id", None),
             getattr(event, "channelId", None),
         ]
@@ -108,9 +119,14 @@ class DiscordTypingInternal:
 
     async def resolve_channel(self, event: AstrMessageEvent):
         if not self.resolver.is_discord_event(event):
+            if self.plugin.debug_log:
+                logger.debug(
+                    "[StopRushingTyping] Skipping non-Discord event: %s",
+                    getattr(event, "unified_msg_origin", ""),
+                )
             return None
 
-        client = self._ensure_client()
+        client = getattr(event, "client", None) or self._ensure_client()
         if client is None:
             if self.plugin.debug_log:
                 logger.debug("[StopRushingTyping] Discord client not found.")
@@ -135,6 +151,13 @@ class DiscordTypingInternal:
                 channel = await client.fetch_channel(channel_id)
             except Exception:
                 channel = None
+
+        if self.plugin.debug_log:
+            logger.info(
+                "[StopRushingTyping] resolved channel=%s session=%s",
+                getattr(channel, "id", None),
+                getattr(event, "unified_msg_origin", ""),
+            )
 
         return channel
 

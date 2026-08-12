@@ -2,6 +2,10 @@
 
 Discord typing 指示插件：在 AstrBot 進入 LLM 推理階段時，持續顯示「輸入中」直到回覆送出。
 
+## 效果預覽
+
+![Discord 中持續顯示機器人正在輸入](preview.png)
+
 此版本參考 [Satori Discord adapter](https://github.com/satorijs/satori.git) 的分層概念：
 
 - 事件層：接收 AstrBot 事件 hook。
