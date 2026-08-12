@@ -310,7 +310,7 @@ class TypingSessionController:
     name="astrbot_plugin_stoprushingiamtyping",
     author="Melantilla.",
     desc="Discord typing 指示插件，以分層架構在 LLM 思考中持續顯示輸入中狀態。",
-    version="0.2.0",
+    version="0.2.1",
 )
 class StopRushingIamTypingPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
